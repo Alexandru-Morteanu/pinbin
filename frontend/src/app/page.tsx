@@ -19,6 +19,7 @@ const Home: React.FC = () => {
     if (currentSectionIndex !== -1) {
       const nextSectionIndex = (currentSectionIndex + 1) % sectionKeys.length;
       const nextSectionId = sectionKeys[nextSectionIndex];
+      // @ts-ignore
       const targetSection = sectionRefs[nextSectionId].current;
 
       if (targetSection) {

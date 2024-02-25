@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const MenuBar = () => {
+export default function MenuBar() {
   const [openNav, setOpenNav] = useState<boolean>(false);
   return (
     <div className="fixed flex text-white w-full bg-black bg-opacity-40 z-50 backdrop-blur-lg font-serif">
@@ -56,6 +56,4 @@ const MenuBar = () => {
       </div>
     </div>
   );
-};
-
-export default MenuBar;
+}

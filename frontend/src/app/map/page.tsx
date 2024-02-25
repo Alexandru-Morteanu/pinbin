@@ -1,7 +1,7 @@
 import RootLayout from "../layout";
-import PageContent from "./pageContent";
+import PageContent from "./PageContent";
 
-export default function Map() {
+export default function PageMap() {
   return (
     <RootLayout centerItems={false}>
       <PageContent />

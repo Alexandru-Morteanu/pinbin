@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
-import Camera from "../components/camera";
-import MapContainer from "../components/map";
+import { useEffect, useState } from "react";
+import Camera from "../components/Camera";
 import { STATES } from "../../../constants";
-import RootLayout from "../layout";
-import MapContainer2 from "../components/map";
+import dynamic from "next/dynamic";
+import axiosInstance from "../components/axios";
+import "./map.css";
+const Map = dynamic(() => import("./Map"), { ssr: false });
 
 export default function PageContent() {
   const [currentState, setCurrentState] = useState<string>(STATES.BUTTON);
@@ -14,26 +15,41 @@ export default function PageContent() {
   const switchState = (state: string) => {
     setCurrentState(state);
   };
+  const [isClicked, setIsClicked] = useState(false);
 
+  useEffect(() => {
+    console.log(imgName);
+  }, [imgName]);
+
+  useEffect(() => {
+    if (isClicked) {
+      setTimeout(() => {
+        setIsClicked(false);
+      }, 1250);
+    }
+  }, [isClicked]);
   return (
     <>
       {(() => {
         switch (currentState) {
           case STATES.BUTTON:
             return (
-              <>
+              <div className="w-full flex  flex-col items-center pt-32">
                 <p className="m-10 text-2xl font-bold text-center">
-                  Press on the button below to send an image of the trash
+                  Press on the button below to send an image of trash
                 </p>
                 <button
-                  onClick={() => {
-                    switchState(STATES.CAMERA);
+                  className="p-20 bg-green-400 hover:bg-green-500 shadow-4xl text-white font-bold h-16 w-16 rounded-full transform hover:scale-105 transition-transform flex flex-row items-center justify-center"
+                  style={{
+                    boxShadow: "0px 0px 800px 10px black",
                   }}
-                  className="bg-green-700 hover:bg-green-600 p-10 text-white font-bold  xl:text-9xl text-5xl  rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200 ease-in-out"
+                  onClick={() => switchState(STATES.CAMERA)}
                 >
-                  Pin Bin 🌲
+                  <div className="text-2xl">📌</div>
+                  <div className="text-xl mx-2">PinBin</div>
+                  <div className="text-2xl">🗑️</div>
                 </button>
-              </>
+              </div>
             );
           case STATES.CAMERA:
             return (
@@ -45,7 +61,7 @@ export default function PageContent() {
               />
             );
           case STATES.MAP:
-            return <MapContainer2 imgName={imgName} image={image} />;
+            return <Map />;
           default:
             return null;
         }

@@ -1,0 +1,100 @@
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px;
+  height: 40px;
+  text-align: center;
+}
+
+.button {
+  outline: none;
+  height: 40px;
+  text-align: center;
+  width: 130px;
+  border-radius: 40px;
+  background: white;
+  border: 2px solid #1ecd97;
+  color: #1ecd97;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:hover {
+  color: white;
+  background: #1ecd97;
+}
+
+.button:active {
+  letter-spacing: 1px;
+}
+
+.onclic {
+  width: 40px;
+  border-color: #bbbbbb;
+  border-width: 3px;
+  font-size: 0;
+  border-left-color: #1ecd97;
+  animation: rotating 2s 0.25s linear infinite;
+}
+
+.button:hover .onclic {
+  color: #1ecd97;
+  background: white;
+}
+
+.validate {
+  font-size: 13px;
+  color: white;
+  background: #1ecd97;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+@keyframes rotating {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/*
+<button
+                  className={
+                    isClicked && !isValidate
+                      ? "onclic"
+                      : isValidate
+                      ? "validate"
+                      : ""
+                  }
+                  onClick={handleClick}
+                >
+                  {!isValidate ? (
+                    <>Submit</>
+                  ) : (
+                    <div className="w-full flex justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="16"
+                        width="14"
+                        viewBox="0 0 448 512"
+                        fill="white"
+                      >
+                        <path
+                          d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"
+                          fill="white"
+                          stroke="white"
+                          strokeWidth="40"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+*/
