@@ -1,17 +1,16 @@
 "use client";
 import { supabase } from "@/app/components/supabase";
 import React, { useEffect, useState } from "react";
-import MapContent from "../MapContent";
-import { MapContainer } from "react-leaflet";
-import { LatLngTuple } from "leaflet";
 import dynamic from "next/dynamic";
+import { Form } from "@/app/components/Blockchain";
 const Map = dynamic(() => import("../Map"), { ssr: false });
 
 function MapAdmin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loged, setLoged] = useState(false);
-  const position: LatLngTuple = [46, 25];
+  const [eventLocations, setEventLocations] = useState<Array<number>>([]);
+  const [events, setEvents] = useState<Array<Form>>([]);
 
   useEffect(() => {
     async function fetchSession() {
@@ -97,7 +96,12 @@ function MapAdmin() {
           </button>
         </div>
       ) : (
-        <Map admin={true} handleDelete={handleDelete} />
+        <Map
+          admin={true}
+          handleDelete={handleDelete}
+          setEventLocations={setEventLocations}
+          events={events}
+        />
       )}
       <button onClick={handleLogout}>Logout</button>
     </>

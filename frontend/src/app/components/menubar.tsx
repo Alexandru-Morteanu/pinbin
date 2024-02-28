@@ -43,7 +43,7 @@ export default function MenuBar() {
         <div className="sm:flex hidden items-center">
           {[
             { text: "About", link: "/about" },
-            { text: "Locations", link: "/map" },
+            { text: "Map", link: "/map" },
             { text: "Sponsors", link: "/sponsors" },
           ].map((button, index) => (
             <Link key={index} href={button.link}>

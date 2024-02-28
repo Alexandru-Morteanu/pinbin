@@ -5,17 +5,19 @@ import { STATES } from "../../../constants";
 import dynamic from "next/dynamic";
 import axiosInstance from "../components/axios";
 import "./map.css";
+import Blockchain, { Form } from "../components/Blockchain";
 const Map = dynamic(() => import("./Map"), { ssr: false });
 
 export default function PageContent() {
   const [currentState, setCurrentState] = useState<string>(STATES.BUTTON);
   const [imgName, setImgName] = useState<string>("");
-
   const [image, setImage] = useState<string | null>(null);
   const switchState = (state: string) => {
     setCurrentState(state);
   };
-  const [isClicked, setIsClicked] = useState(false);
+  const [isClicked, setIsClicked] = useState<boolean>(false);
+  const [eventLocations, setEventLocations] = useState<Array<number>>([0, 0]);
+  const [events, setEvents] = useState<Array<Form>>([]);
 
   useEffect(() => {
     console.log(imgName);
@@ -61,7 +63,15 @@ export default function PageContent() {
               />
             );
           case STATES.MAP:
-            return <Map />;
+            return (
+              <>
+                <Map setEventLocations={setEventLocations} events={events} />
+                <Blockchain
+                  eventLocations={eventLocations}
+                  setEventuri={setEvents}
+                />
+              </>
+            );
           default:
             return null;
         }

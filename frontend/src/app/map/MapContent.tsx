@@ -7,6 +7,9 @@ import runKMeans from "../components/algorithms/kmeans";
 import { bigAreaPoints } from "../components/algorithms/maxarea";
 import { supabase } from "../components/supabase";
 import axiosInstance from "../components/axios";
+import yellowIcon from "../images/yellowIcon.png";
+import { StaticImageData } from "next/image";
+import { Form } from "../components/Blockchain";
 
 type Point = {
   x: number;
@@ -15,9 +18,16 @@ type Point = {
 type Props = {
   admin?: boolean;
   handleDelete?: (id: number) => void;
+  setEventLocations: Function;
+  events: Array<Form>;
 };
 
-export default function MapContent({ admin, handleDelete }: Props) {
+export default function MapContent({
+  admin,
+  handleDelete,
+  setEventLocations,
+  events,
+}: Props) {
   const map = useMap();
   const [polygons, setPolygons] = useState<number[][][]>([]);
   const [circles, setCircles] = useState<any>([]);
@@ -26,10 +36,23 @@ export default function MapContent({ admin, handleDelete }: Props) {
   const [ids, setIds] = useState<number[]>([]);
   const [imagesArray, setImagesArray] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState<string[] | null>([]);
+  const [clickedLocation, setClickedLocation] = useState<LatLngTuple | null>(
+    null
+  );
+  function customIcon(iconUrl: StaticImageData) {
+    return new L.Icon({
+      iconUrl: iconUrl.src || "",
+      iconSize: [40, 40],
+    });
+  }
 
   useEffect(() => {
     fetchPoints();
   }, []);
+
+  useEffect(() => {
+    console.log(events);
+  }, [events]);
 
   useEffect(() => {
     if (points.length > 0) {
@@ -111,6 +134,13 @@ export default function MapContent({ admin, handleDelete }: Props) {
     }
   }
 
+  useMapEvent("click", (event) => {
+    const { lat, lng } = event.latlng;
+    setClickedLocation([lat, lng]);
+    setEventLocations([lat, lng]);
+    console.log(`Clicked on point: ${lat}, ${lng}`);
+  });
+
   useMapEvent("zoomend", () => {
     setZoom(map.getZoom());
   });
@@ -145,7 +175,6 @@ export default function MapContent({ admin, handleDelete }: Props) {
                     />
                   )}
                 </div>
-
                 {admin && (
                   <div
                     onClick={async () => {
@@ -172,6 +201,25 @@ export default function MapContent({ admin, handleDelete }: Props) {
           ></CircleMarker>
         ) : null
       )}
+      {clickedLocation && (
+        <Marker position={clickedLocation} icon={customIcon(yellowIcon)}>
+          <Popup>Clicked Point</Popup>
+        </Marker>
+      )}
+      {events.map((event: any, index) => (
+        <Marker
+          key={index}
+          position={[event.lat, event.lng]}
+          icon={customIcon(yellowIcon)}
+        >
+          <Popup>
+            <div>
+              <p>Name: {event.name}</p>
+              <p>Date: {event.timestamp}</p>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
     </>
   );
 }
