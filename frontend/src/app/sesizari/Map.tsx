@@ -7,12 +7,14 @@ type Props = {
   admin?: boolean;
   handleDelete?: (id: number) => void;
   setEventLocations: Function;
+  setCurrentPin?: Function;
   events: Array<Form>;
 };
 export default function Map({
   admin,
   handleDelete,
   setEventLocations,
+  setCurrentPin,
   events,
 }: Props) {
   const position: LatLngTuple = [46, 25];
@@ -27,6 +29,7 @@ export default function Map({
         handleDelete={handleDelete}
         setEventLocations={setEventLocations}
         events={events}
+        setCurrentPin={setCurrentPin}
       />
     </MapContainer>
   );

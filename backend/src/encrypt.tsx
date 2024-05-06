@@ -23,6 +23,7 @@ export default function encrypt(body: any, resolve: any, reject: any) {
         x: encryptedX,
         y: encryptedY,
         imgName: JSON.parse(body).imgName,
+        status: "Problem",
       };
       await supabase.from("PointsTrash").insert([data]);
     };

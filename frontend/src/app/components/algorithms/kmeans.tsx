@@ -59,7 +59,6 @@ const assignPointsToClusters = (
         y: totalY / updatedCluster.points.length,
       };
     } else {
-      // If a cluster has no points, keep the centroid unchanged
       updatedCluster.centroid = clusters[index].centroid;
     }
   });
@@ -81,7 +80,7 @@ const calculateNewCentroids = (clusters: Cluster[]): Point[] => {
 const runKMeans = (
   k: number,
   initialPoints: Point[],
-  maxIterations = 100,
+  maxIterations = 10,
   convergenceThreshold = 1e-4
 ): Cluster[] => {
   let clusters: Cluster[] = Array.from({ length: k }, (_, index) => ({
@@ -96,7 +95,6 @@ const runKMeans = (
 
     const newCentroids = calculateNewCentroids(updatedClusters);
 
-    // Check for convergence based on centroid movement
     const hasConverged = clusters.every(
       (cluster, index) =>
         calculateDistance(cluster.centroid, newCentroids[index]) <
@@ -107,7 +105,6 @@ const runKMeans = (
       break;
     }
 
-    // Update clusters with new centroids
     clusters = newCentroids.map((centroid, index) => ({
       centroid,
       points: updatedClusters[index]?.points || ([] as Point[]),

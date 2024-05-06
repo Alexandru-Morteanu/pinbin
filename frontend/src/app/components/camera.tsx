@@ -5,6 +5,9 @@ import axiosInstance from "./axios";
 import { STATES } from "../../../constants";
 import { supabase } from "./supabase";
 import IphoneCamera from "./IphoneCamera";
+import locationWhite from "../images/locwhite.png";
+import Image from "next/image";
+
 interface CameraProps {
   switchState: (state: string) => void;
   image: any;
@@ -29,8 +32,6 @@ export default function Camera({
           setLat(position.coords.latitude);
           setLng(position.coords.longitude);
           setLocation(true);
-          console.log(position.coords.latitude);
-          console.log(position.coords.longitude);
         },
         function (error) {
           console.error("Error getting location:", error);
@@ -45,7 +46,6 @@ export default function Camera({
   }, []);
 
   const capture = useCallback(async () => {
-    // Check if location has been fetched successfully
     if (location) {
       const imageSrc = webcamRef.current?.getScreenshot();
       setImage(imageSrc || null);
@@ -73,25 +73,39 @@ export default function Camera({
       const result = await axiosInstance.post("/", {
         buffer: Array.from(uint8Array) as number[],
       });
-      console.log(result.data);
-      const newImageName = `image-${Date.now()}.jpg`;
-      const res = await axiosInstance.post("/encrypt", {
-        x: lat,
-        y: lng,
-        imgName: newImageName,
-      });
+      // result.data
+      if (true) {
+        const newImageName = `image-${Date.now()}.jpg`;
+        const res = await axiosInstance.post("/encrypt", {
+          x: lat,
+          y: lng,
+          imgName: newImageName,
+        });
 
-      const blob = new Blob([uint8Array], { type: "image/jpeg" });
-      const { data, error } = await supabase.storage
-        .from("Imagini")
-        .upload(newImageName, blob);
+        const blob = new Blob([uint8Array], { type: "image/jpeg" });
+        const { data, error } = await supabase.storage
+          .from("Imagini")
+          .upload(newImageName, blob);
 
-      setImgName(newImageName);
-      switchState(STATES.MAP);
+        setImgName(newImageName);
+        switchState(STATES.MAP);
+      } else {
+        alert("It's not trash");
+      }
     } else {
       alert("TURN ON LOCATION");
     }
   }
 
-  return <IphoneCamera webcamRef={webcamRef} image={image} capture={capture} />;
+  return (
+    <div className="flex">
+      <IphoneCamera webcamRef={webcamRef} image={image} capture={capture} />
+      <Image
+        alt="locationWhite"
+        src={locationWhite}
+        className={`${location ? "opacity-100" : "opacity-20"}`}
+        style={{ objectFit: "contain" }}
+      />
+    </div>
+  );
 }

@@ -1,10 +1,12 @@
-import RootLayout from "../layout";
-import PageContent from "./PageContent";
+"use client";
+import React, { useState } from "react";
+import Admin from "../admin/Admin";
+type Props = {};
 
-export default function PageMap() {
+export default function page({}: Props) {
   return (
-    <RootLayout centerItems={false}>
-      <PageContent />
-    </RootLayout>
+    <div className="w-full">
+      <Admin admin={false} />
+    </div>
   );
 }

@@ -12,6 +12,7 @@ export type Data = {
   imgName: string;
 };
 export const CONTRACT_ADRESS = "0x688013e1009708d8Fa78EE2F1f3D59532Ce01477";
+//0x06F01f3DF1902758a744050B0d9968f50dea86Ad
 export const PRIVATE_KEY =
   "0x17386e1eed13c6c5a9fb8c81003ea9562fc98cf9268edadfdcd8def5ae66caa3";
 export const initialState = {
@@ -81,3 +82,16 @@ export const CONTRACT_ABI: any = [
     type: "event",
   },
 ];
+export function getStateColor(state: string): string {
+  console.log(state);
+  switch (state) {
+    case "Problem":
+      return "text-orange-400";
+    case "Solved":
+      return "text-green-700";
+    case "AI Mistake":
+      return "text-red-700";
+    default:
+      return "";
+  }
+}

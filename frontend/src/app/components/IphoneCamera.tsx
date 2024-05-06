@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Webcam from "react-webcam";
+import Canva from "../test/Canva";
 
 export default function IphoneCamera({ webcamRef, capture, image }: any) {
   const [recording, setRecording] = useState(false);
@@ -31,9 +32,12 @@ export default function IphoneCamera({ webcamRef, capture, image }: any) {
           style={{
             borderRadius: 50,
             objectFit: "cover",
+            zIndex: 0,
           }}
           onUserMedia={handleUserMedia}
         />
+
+        <Canva webcamRef={webcamRef} />
       </div>
       <div
         className="w-[300px] h-[100px] flex justify-center items-center"

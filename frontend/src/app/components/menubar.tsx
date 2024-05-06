@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function MenuBar() {
   const [openNav, setOpenNav] = useState<boolean>(false);
   return (
-    <div className="fixed flex text-white w-full bg-black bg-opacity-40 z-50 backdrop-blur-lg font-serif">
+    <div className="fixed flex text-white w-full bg-black bg-opacity-40 z-50 backdrop-blur-lg font-serif px-10">
       <div className="flex justify-between w-full">
         <Link href="/">
           <h1 className="text-white items-center font-bold text-3xl p-4">
@@ -32,6 +32,7 @@ export default function MenuBar() {
             { text: "About", link: "/about" },
             { text: "Locations", link: "/map" },
             { text: "Sponsors", link: "/sponsors" },
+            { text: "Sesizari", link: "/sesizari" },
           ].map((button, index) => (
             <Link key={index} href={button.link}>
               <p className="px-3 py-2 border-white hover:text-green-600 font-serif text-2xl font-semibold">
@@ -45,6 +46,7 @@ export default function MenuBar() {
             { text: "About", link: "/about" },
             { text: "Map", link: "/map" },
             { text: "Sponsors", link: "/sponsors" },
+            { text: "Sesizari", link: "/sesizari" },
           ].map((button, index) => (
             <Link key={index} href={button.link}>
               <p className="px-3 py-2 border-white hover:text-green-600 font-serif text-2xl font-semibold">

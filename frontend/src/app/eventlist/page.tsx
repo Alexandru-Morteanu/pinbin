@@ -1,4 +1,4 @@
-"use client"; // NavigationButton.tsx
+"use client";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -107,8 +107,8 @@ const NavigationButton: React.FC<NavigationButtonProps> = () => {
 
 const squareStyle: React.CSSProperties = {
   position: "absolute",
-  top: "calc(15vh + 40px)", // Adjust the position as needed
-  left: "0", // Adjust the position as needed
+  top: "calc(15vh + 40px)",
+  left: "0",
   width: "100%",
   padding: "5vh",
   display: "flex",

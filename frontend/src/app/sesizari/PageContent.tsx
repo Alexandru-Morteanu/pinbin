@@ -1,12 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Camera from "../components/Camera";
 import { STATES } from "../../../constants";
 import dynamic from "next/dynamic";
-import axiosInstance from "../components/axios";
 import "./map.css";
-import Blockchain, { Form } from "../components/Blockchain";
-const Map = dynamic(() => import("./Map"), { ssr: false });
 
 export default function PageContent() {
   const [currentState, setCurrentState] = useState<string>(STATES.BUTTON);
@@ -16,8 +14,7 @@ export default function PageContent() {
     setCurrentState(state);
   };
   const [isClicked, setIsClicked] = useState<boolean>(false);
-  const [eventLocations, setEventLocations] = useState<Array<number>>([0, 0]);
-  const [events, setEvents] = useState<Array<Form>>([]);
+  const router = useRouter();
 
   useEffect(() => {
     console.log(imgName);
@@ -30,6 +27,11 @@ export default function PageContent() {
       }, 1250);
     }
   }, [isClicked]);
+  useEffect(() => {
+    if (currentState === STATES.MAP) {
+      router.push("/map");
+    }
+  }, [currentState]);
   return (
     <>
       {(() => {
@@ -41,7 +43,7 @@ export default function PageContent() {
                   Press on the button below to send an image of trash
                 </p>
                 <button
-                  className="p-20 bg-green-400 hover:bg-green-500 shadow-4xl text-white font-bold h-16 w-16 rounded-full transform hover:scale-105 transition-transform flex flex-row items-center justify-center"
+                  className="p-20 bg-green-400 hover:bg-green-500 shadow-4xl text-white font-bold h-16 w-16 rounded-full transform hover:scale-105 transition-transform flex flex-row items-center justify-center border-4 border-solid border-black border-inset"
                   style={{
                     boxShadow: "0px 0px 800px 10px black",
                   }}
@@ -61,16 +63,6 @@ export default function PageContent() {
                 setImage={setImage}
                 switchState={switchState}
               />
-            );
-          case STATES.MAP:
-            return (
-              <>
-                <Map setEventLocations={setEventLocations} events={events} />
-                <Blockchain
-                  eventLocations={eventLocations}
-                  setEventuri={setEvents}
-                />
-              </>
             );
           default:
             return null;

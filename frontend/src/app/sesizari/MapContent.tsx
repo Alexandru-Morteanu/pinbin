@@ -1,5 +1,12 @@
 "use client";
-import React, { FC, MouseEventHandler, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  FC,
+  MouseEventHandler,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { TileLayer, Polygon, Marker, Popup, CircleMarker } from "react-leaflet";
 import { useMap, useMapEvent } from "react-leaflet/hooks";
 import L, { LatLngExpression, LatLngTuple } from "leaflet";
@@ -10,21 +17,47 @@ import axiosInstance from "../components/axios";
 import yellowIcon from "../images/yellowIcon.png";
 import { StaticImageData } from "next/image";
 import { Form } from "../components/Blockchain";
+import { getStateColor } from "../../../constants";
 
 type Point = {
   x: number;
   y: number;
 };
+
+export type DataItem = {
+  id: number;
+  points: [string, string];
+  imgName: string;
+  status: string;
+  descriere: string;
+};
+
 type Props = {
   admin?: boolean;
   handleDelete?: (id: number) => void;
   setEventLocations: Function;
-  events: Array<Form>;
+  events: Form[];
+  setCurrentPin?: Function;
 };
+
+export function getState(state: string): string {
+  console.log(state);
+  switch (state) {
+    case "Problem":
+      return "text-orange-400";
+    case "Solved":
+      return "text-green-700";
+    case "AI Mistake":
+      return "text-red-700";
+    default:
+      return "";
+  }
+}
 
 export default function MapContent({
   admin,
   handleDelete,
+  setCurrentPin,
   setEventLocations,
   events,
 }: Props) {
@@ -32,13 +65,12 @@ export default function MapContent({
   const [polygons, setPolygons] = useState<number[][][]>([]);
   const [circles, setCircles] = useState<any>([]);
   const [zoom, setZoom] = useState<any>(map.getZoom());
-  const [points, setPoints] = useState<[string, string][]>([]);
-  const [ids, setIds] = useState<number[]>([]);
-  const [imagesArray, setImagesArray] = useState<string[]>([]);
+  const [data, setData] = useState<DataItem[]>([]);
   const [imageUrl, setImageUrl] = useState<string[] | null>([]);
   const [clickedLocation, setClickedLocation] = useState<LatLngTuple | null>(
     null
   );
+
   function customIcon(iconUrl: StaticImageData) {
     return new L.Icon({
       iconUrl: iconUrl.src || "",
@@ -55,73 +87,70 @@ export default function MapContent({
   }, [events]);
 
   useEffect(() => {
-    if (points.length > 0) {
-      const point: Point[] = points.map(([x, y]: [string, string]) => ({
-        x: parseFloat(x),
-        y: parseFloat(y),
+    if (data.length > 0) {
+      const parsedPoints: Point[] = data.map((item) => ({
+        x: parseFloat(item.points[0]),
+        y: parseFloat(item.points[1]),
       }));
 
-      const clusters = runKMeans(4, point);
-      console.log(point);
-      const clusteredPolygons = clusters.map((cluster: any) => {
-        const clusterPoints = cluster.points.map((point: any) => ({
-          x: point.x,
-          y: point.y,
-        }));
+      const clusters = runKMeans(4, parsedPoints);
+      console.log(parsedPoints);
+      // const clusteredPolygons = clusters.map((cluster: any) => {
+      //   const clusterPoints = cluster.points.map((point: any) => ({
+      //     x: point.x,
+      //     y: point.y,
+      //   }));
 
-        const hullPoints: number[][] = bigAreaPoints(
-          clusterPoints,
-          cluster.centroid
-        );
-        return hullPoints;
-      });
-      setPolygons(clusteredPolygons);
+      //   const hullPoints: number[][] = bigAreaPoints(
+      //     clusterPoints,
+      //     cluster.centroid
+      //   );
+      //   return hullPoints;
+      // });
+      // setPolygons(clusteredPolygons);
 
-      const clusteredCentroids: any = clusters.map((point, index) => {
-        const lat = point.centroid.x;
-        const lng = point.centroid.y;
-        return [lat, lng];
-      });
+      // const clusteredCentroids: any = clusters.map((point, index) => {
+      //   const lat = point.centroid.x;
+      //   const lng = point.centroid.y;
+      //   return [lat, lng];
+      // });
 
-      const circleMarkers = clusters.map((cluster: any, index: number) => {
-        const maxRadiusInDegrees = Math.max(
-          ...cluster.points.map((point: any) =>
-            Math.sqrt(
-              Math.pow(cluster.centroid.x - point.x, 2) +
-                Math.pow(cluster.centroid.y - point.y, 2)
-            )
-          )
-        );
-        const maxRadius = (maxRadiusInDegrees / 360) * 40075016.686;
-        const center = clusteredCentroids[index];
-        return { center, radius: maxRadius };
-      });
-      setCircles(circleMarkers);
+      // const circleMarkers = clusters.map((cluster: any, index: number) => {
+      //   const maxRadiusInDegrees = Math.max(
+      //     ...cluster.points.map((point: any) =>
+      //       Math.sqrt(
+      //         Math.pow(cluster.centroid.x - point.x, 2) +
+      //           Math.pow(cluster.centroid.y - point.y, 2)
+      //       )
+      //     )
+      //   );
+      //   const maxRadius = (maxRadiusInDegrees / 360) * 40075016.686;
+      //   const center = clusteredCentroids[index];
+      //   return { center, radius: maxRadius };
+      // });
+      // setCircles(circleMarkers);
     }
-  }, [points]);
+  }, [data]);
 
   const fetchPoints = async () => {
     try {
       const { data } = await axiosInstance.post("/decrypt");
-      const points = data.map((row: any) => Object.values(row.points));
-      const images = data.map((row: any) => row.imgName);
-      const iduri = data.map((row: any) => row.id);
-      setIds(iduri);
-      setPoints(points);
-      setImagesArray(images);
+      setData(data);
     } catch (error: any) {
       console.error("Error fetching points from Supabase:", error.message);
     }
   };
 
   async function handleReqImage(index: number) {
-    const { data, error } = await supabase.storage
+    const { imgName } = data[index];
+    const { data: imageData, error } = await supabase.storage
       .from("Imagini")
-      .download(imagesArray[index]);
+      .download(imgName);
     if (error) {
       console.error("Error downloading image:", error.message);
     } else if (data) {
-      const imageUrl = URL.createObjectURL(data);
+      const imageUrl = URL.createObjectURL(imageData);
+      if (setCurrentPin) setCurrentPin(data[index]);
       setImageUrl((prevImageUrl) => {
         if (Array.isArray(prevImageUrl)) {
           const newImageUrl = [...prevImageUrl];
@@ -144,7 +173,6 @@ export default function MapContent({
   useMapEvent("zoomend", () => {
     setZoom(map.getZoom());
   });
-
   return (
     <>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -155,17 +183,24 @@ export default function MapContent({
           positions={polygon as LatLngExpression[]}
         />
       ))}
-      {points?.map((point: any, index) =>
-        !point.some((value: number) => isNaN(value)) ? (
-          <Marker key={`circle-${index}`} position={point}>
+      {data?.map((point: any, index) =>
+        !point.points.some((value: number) => isNaN(value)) ? (
+          <Marker
+            key={`circle-${index}`}
+            position={point.points}
+            eventHandlers={{
+              click: () => {
+                handleReqImage(index);
+              },
+            }}
+          >
             <Popup>
-              {point[0] + " <-> " + point[1]}
-              <button
-                onClick={() => {
-                  handleReqImage(index);
-                }}
-                className="w-[100%] h-[100px] my-5 justify-center items-center flex p-0 bg-slate-300"
-              >
+              <div>{point.points[0] + " <-> " + point.points[1]}</div>
+              <div className={` flex ${getState(point.status)}`}>
+                {" "}
+                {point.status}
+              </div>
+              <button className="w-[100%] h-[100px] my-5 justify-center items-center flex p-0 bg-slate-300">
                 <div>
                   {imageUrl && imageUrl[index] && (
                     <img
@@ -178,7 +213,7 @@ export default function MapContent({
                 {admin && (
                   <div
                     onClick={async () => {
-                      handleDelete?.(ids[index]);
+                      handleDelete?.(data[index].id);
                       await fetchPoints();
                     }}
                     className="absolute  right-0 top-7 bg-red-600 rounded-md p-1 h-5 font-bold w-5 m-2 flex justify-center items-center"

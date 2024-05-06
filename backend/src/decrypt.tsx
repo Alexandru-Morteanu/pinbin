@@ -17,6 +17,8 @@ export default function decrypt(body: any, resolve: any, reject: any) {
           points: [decryptedX, decryptedY],
           imgName: row.imgName,
           id: row.id,
+          status: row.status,
+          descriere: row.descriere,
         };
       });
       resolve(decryptedData);
