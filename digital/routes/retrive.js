@@ -12,7 +12,7 @@ const app = express.Router();
 app.get("/retrive", async (req, res) => {
   try {
     const { data, error } = await supabase.from("Contracts").select("*");
-
+    console.log(data);
     const contractsInfo = data.map((contractData) => {
       try {
         const cert = forge.pki.certificateFromPem(contractData.contract);
