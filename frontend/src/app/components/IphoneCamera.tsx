@@ -1,9 +1,33 @@
 import { useState } from "react";
 import Webcam from "react-webcam";
 import Canva from "../test/Canva";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@radix-ui/react-label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
+export type PointDetails = {
+  label: string;
+  name: string;
+  detalii_cet: string;
+};
 export default function IphoneCamera({ webcamRef, capture, image }: any) {
-  const [recording, setRecording] = useState(false);
+  const [recording, setRecording] = useState<Boolean>(false);
+  const [pointDetails, setPointDetails] = useState<PointDetails>({
+    label: "nedeterminat",
+    name: "",
+    detalii_cet: "",
+  });
+
   const handleUserMedia = (stream: any) => {
     setRecording(true);
   };
@@ -23,7 +47,7 @@ export default function IphoneCamera({ webcamRef, capture, image }: any) {
           borderRadius: 50,
         }}
       ></img> */}
-      <div className="absolute w-[300px] h-[600px] overflow-hidden">
+      <div className="absolute w-[300px] h-[600px] overflow-hidden z-0">
         <Webcam
           audio={false}
           ref={webcamRef}
@@ -36,8 +60,7 @@ export default function IphoneCamera({ webcamRef, capture, image }: any) {
           }}
           onUserMedia={handleUserMedia}
         />
-
-        <Canva webcamRef={webcamRef} />
+        <Canva setLabel={setPointDetails} webcamRef={webcamRef} />
       </div>
       <div
         className="w-[300px] h-[100px] flex justify-center items-center"
@@ -90,16 +113,82 @@ export default function IphoneCamera({ webcamRef, capture, image }: any) {
         </div>
 
         <div className="w-full flex items-center justify-center">
-          <button
-            className="w-[49px] h-[49px] cursor-pointer"
-            style={{
-              border: "solid black 2px",
-              borderRadius: "50%",
-              zIndex: "10",
-            }}
-            disabled={!location}
-            onClick={capture}
-          ></button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                className="w-[49px] h-[49px] cursor-pointer"
+                style={{
+                  border: "solid black 2px",
+                  borderRadius: "50%",
+                  zIndex: "100",
+                }}
+                disabled={!location}
+              ></button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] dark text-white">
+              <DialogHeader>
+                <DialogTitle>Eticheta va fi {pointDetails.label}</DialogTitle>
+                <DialogDescription>
+                  Aceasta eticheta va fi validata de catre ONG inainte de a
+                  ajunge la administrator!
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Nume
+                  </Label>
+                  <Input
+                    id="name"
+                    defaultValue="Pedro Duarte"
+                    className="col-span-3"
+                    onChange={(e: unknown) => {
+                      if (
+                        e &&
+                        typeof e === "object" &&
+                        "target" in e &&
+                        e.target !== null &&
+                        typeof (e.target as any).value === "string"
+                      ) {
+                        setPointDetails((prevDetails) => ({
+                          ...prevDetails,
+                          name: (e.target as HTMLInputElement).value,
+                        }));
+                      }
+                    }}
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="username" className="text-right">
+                    Detalii
+                  </Label>
+                  <Textarea
+                    className="col-span-3"
+                    onChange={(e: unknown) => {
+                      if (
+                        e &&
+                        typeof e === "object" &&
+                        "target" in e &&
+                        e.target !== null &&
+                        typeof (e.target as any).value === "string"
+                      ) {
+                        setPointDetails((prevDetails) => ({
+                          ...prevDetails,
+                          detalii_cet: (e.target as HTMLInputElement).value,
+                        }));
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" onClick={() => capture(pointDetails)}>
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <div
             className="absolute w-[55px] h-[55px] bg-white cursor-pointer"
             style={{

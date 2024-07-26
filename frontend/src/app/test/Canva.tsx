@@ -1,76 +1,141 @@
-"use client";
-import React, { useRef, useEffect } from "react";
-import * as tf from "@tensorflow/tfjs";
-import * as cocossd from "@tensorflow-models/coco-ssd";
+import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
+import io from "socket.io-client";
+import { PointDetails } from "../components/IphoneCamera";
 
-const Canva: React.FC = ({ webcamRef }: any) => {
+const socket = io("http://localhost:8088");
+
+interface CanvaProps {
+  webcamRef: any;
+  setLabel: Function;
+}
+
+interface Detection {
+  object_name: string;
+  confidence: number;
+  xmin: number;
+  ymin: number;
+  xmax: number;
+  ymax: number;
+}
+
+const Canva: React.FC<CanvaProps> = ({ webcamRef, setLabel }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [detections, setDetections] = useState<Detection[]>([]);
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    const initializeModel = async () => {
+    const interval = startSendingFrames();
+
+    socket.on("detection", (message) => {
+      console.log(message);
+      setMessages((prevMessages) => [...prevMessages, message]);
       try {
-        // Check if WebGL backend is available
-        await tf.setBackend("webgl");
-
-        // Load COCO-SSD model
-        const net = await cocossd.load();
-        console.log("COCO-SSD model loaded.");
-
-        // Start object detection
-        setInterval(() => {
-          detect(net);
-        }, 10);
-      } catch (error) {
-        console.error("Error initializing TensorFlow:", error);
+        const parsedMessage: Detection[] = JSON.parse(message);
+        setDetections(parsedMessage);
+      } catch (e) {
+        console.error("Failed to parse message:", message);
       }
-    };
+    });
 
-    initializeModel();
+    return () => {
+      clearInterval(interval);
+      socket.off("detection");
+    };
   }, []);
 
-  const detect = async (net: cocossd.ObjectDetection) => {
-    if (webcamRef.current?.video?.readyState === 4 && canvasRef.current) {
-      const video = webcamRef.current.video;
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
+  useEffect(() => {
+    if (canvasRef.current && webcamRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
 
-      video.width = videoWidth;
-      video.height = videoHeight;
+      // Set the new canvas size
+      canvas.width = 300;
+      canvas.height = 600;
 
-      canvasRef.current.width = videoWidth;
-      canvasRef.current.height = videoHeight;
-
-      const obj = await net.detect(video);
-      console.log("Detection results:", obj);
-
-      const ctx = canvasRef.current.getContext("2d");
       if (ctx) {
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        drawRect(obj, ctx);
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Calculate the scaling factors
+        const scaleX = canvas.width / 320;
+        const scaleY = canvas.height / 320;
+
+        // Draw detections
+        [
+          {
+            object_name: "telecom_alb",
+            confidence: 0.51171875,
+            xmin: 58,
+            ymin: 126,
+            xmax: 231,
+            ymax: 256,
+          },
+        ].forEach((detection) => {
+          setLabel((prevDetails: PointDetails) => ({
+            ...prevDetails,
+            label: detection.object_name,
+          }));
+          const { object_name, confidence, xmin, ymin, xmax, ymax } = detection;
+
+          // Scale the coordinates
+          const scaledXMin = xmin * scaleX;
+          const scaledYMin = ymin * scaleY;
+          const scaledXMax = xmax * scaleX;
+          const scaledYMax = ymax * scaleY;
+
+          // Draw bounding box
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(
+            scaledXMin,
+            scaledYMin,
+            scaledXMax - scaledXMin,
+            scaledYMax - scaledYMin
+          );
+
+          ctx.fillStyle = "red";
+          ctx.font = "18px Arial";
+          ctx.fillText(
+            `${object_name} (${(confidence * 100).toFixed(2)}%)`,
+            scaledXMin,
+            scaledYMin > 20 ? scaledYMin - 10 : scaledYMin + 20
+          );
+        });
       }
     }
+  }, []);
+
+  const startSendingFrames = () => {
+    const interval = setInterval(() => {
+      // if (webcamRef.current) {
+      //   const frameData = getFrameDataFromWebcam(webcamRef.current);
+      //   if (frameData) {
+      //     socket.emit("frame", frameData);
+      //   }
+      // }
+    }, 300);
+
+    return interval; // Return the interval ID for cleanup
   };
 
-  const drawRect = (detections: any[], ctx: CanvasRenderingContext2D) => {
-    // Loop through each prediction
-    detections.forEach((prediction) => {
-      // Extract boxes and classes
-      const [x, y, width, height] = prediction.bbox;
-      const text = prediction.class;
+  const getFrameDataFromWebcam = (webcam: Webcam): number[] | null => {
+    const imageSrc = webcam.getScreenshot();
+    if (!imageSrc) {
+      return null;
+    }
 
-      // Set styling
-      const color = Math.floor(Math.random() * 16777215).toString(16);
-      ctx.strokeStyle = "#" + color;
-      ctx.font = "18px Arial";
+    const base64Data = imageSrc.replace(/^data:image\/jpeg;base64,/, "");
+    const binaryData = atob(base64Data);
+    const uint8Array = new Uint8Array(binaryData.length);
 
-      // Draw rectangles and text
-      ctx.beginPath();
-      ctx.fillStyle = "#" + color;
-      ctx.fillText(text, x, y);
-      ctx.rect(x, y, width, height);
-      ctx.stroke();
-    });
+    for (let i = 0; i < binaryData.length; i++) {
+      uint8Array[i] = binaryData.charCodeAt(i);
+    }
+
+    // Convert Uint8Array to number[]
+    const dataArray = Array.from(uint8Array) as number[];
+    return dataArray;
   };
 
   return (
@@ -84,8 +149,8 @@ const Canva: React.FC = ({ webcamRef }: any) => {
         right: 0,
         textAlign: "center",
         zIndex: 10,
-        width: 640,
-        height: 480,
+        width: 300,
+        height: 600,
       }}
     />
   );

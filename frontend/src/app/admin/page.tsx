@@ -100,7 +100,22 @@ export default function Page() {
     <div className=" w-full">
       {!hasToken ? (
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold my-8">Certificate</h1>
+          <h1 className="text-3xl font-bold my-8">
+            Certificate Administratori
+          </h1>
+          <div className="grid grid-cols-2 gap-4">
+            {contracts.map((contract, index) => (
+              <div
+                key={index}
+                className="border cursor-pointer p-4 rounded-lg shadow-md flex flex-col"
+                onClick={() => handleContractClick(contract)}
+              >
+                <h2 className="text-xl font-semibold">{contract.commonName}</h2>
+                <p className="text-gray-600">{contract.organization}</p>
+              </div>
+            ))}
+          </div>
+          <h1 className="text-3xl font-bold my-8">Certificate ONG</h1>
           <div className="grid grid-cols-2 gap-4">
             {contracts.map((contract, index) => (
               <div
@@ -145,7 +160,15 @@ export default function Page() {
         <div>
           <div>{adminData?.nume}</div>
           <div>{adminData?.organizatie}</div>
-          <Admin admin={true} />
+          {adminData && adminData.organizatie === "ISJ Vaslui" ? (
+            <Admin admin={true} adminData={adminData} />
+          ) : (
+            adminData &&
+            adminData.nume !== "ISJ Vaslui" && (
+              <Admin ong={true} adminData={adminData} />
+            )
+          )}
+
           <div
             className=" cursor-pointer"
             onClick={() => {

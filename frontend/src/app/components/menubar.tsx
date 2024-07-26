@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function MenuBar() {
   const [openNav, setOpenNav] = useState<boolean>(false);
   return (
-    <div className="fixed flex text-white w-full bg-black bg-opacity-40 z-50 backdrop-blur-lg font-serif px-10">
+    <div className="fixed flex text-white w-full bg-black bg-opacity-40 z-[60] backdrop-blur-lg font-serif px-10">
       <div className="flex justify-between w-full">
         <Link href="/">
           <h1 className="text-white items-center font-bold text-3xl p-4">

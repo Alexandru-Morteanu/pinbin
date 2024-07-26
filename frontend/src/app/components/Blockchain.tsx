@@ -8,6 +8,7 @@ import {
   PRIVATE_KEY,
 } from "../../../constants";
 import { fixedPointToFloat, floatToFixedPoint } from "../components/floatnum";
+import { DataItem } from "../sesizari/MapContent";
 
 type Steps = {
   initiate: boolean;
@@ -19,19 +20,30 @@ type Steps = {
 };
 
 export type Form = {
-  lat: number | null;
-  lng: number | null;
+  lat: string | null;
+  lng: string | null;
   name: string;
   date: string;
+  status: string | undefined;
+  details: string;
   timestamp?: any;
 };
 
 type Props = {
-  eventLocations: Array<number>;
+  dataPin: DataItem | undefined;
   setEventuri: Function;
+  selectedOption: string | undefined;
+  adminData?: any;
+  secondButton: string;
 };
 
-export default function Blockchain({ eventLocations, setEventuri }: Props) {
+export default function Blockchain({
+  adminData,
+  dataPin,
+  setEventuri,
+  selectedOption,
+  secondButton,
+}: Props) {
   let [web3, setWeb3] = useState<any>();
   const contractAddress = CONTRACT_ADRESS;
   const contractAbi = CONTRACT_ABI;
@@ -58,9 +70,16 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
   const [formData, setFormData] = useState<Form>({
     lat: null,
     lng: null,
-    name: "",
-    date: "",
+    name: adminData?.nume,
+    date: Date().toString(),
+    details: "",
+    status: selectedOption || "",
   });
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
+
   const [steps, setSteps] = useState<Steps>(initialState);
   const [events, setEvents] = useState<Array<Form>>([]);
 
@@ -72,7 +91,7 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
     const last3Events = res.slice(Math.max(res.length - 10, 0));
     const eventData = last3Events.map((event: any) => {
       const decodedData = web3.eth.abi.decodeParameters(
-        ["uint256", "uint256", "string", "uint256"],
+        ["uint256", "uint256", "string", "uint256", "string", "string"],
         event.data
       );
       const timestampBigInt = decodedData["3"] as BigInt;
@@ -88,9 +107,12 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
         lat: lat,
         lng: lng,
         name: decodedData["2"],
-        timestamp: timestamp.toDateString(),
+        date: timestamp.toDateString(),
+        status: decodedData["4"],
+        detalii: decodedData["5"],
       };
     });
+    console.log(eventData);
     setEventuri(eventData);
     setEvents(eventData.slice(-3));
   }
@@ -103,16 +125,23 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
     const nonce = await web3.eth.getTransactionCount(account.address);
     setSteps((prevSteps) => ({ ...prevSteps, transactionCount: true }));
 
-    const lat = floatToFixedPoint(newValue.lat as number, 51);
-    const lng = floatToFixedPoint(newValue.lng as number, 51);
+    const lat = floatToFixedPoint(newValue.lat as unknown as number, 51);
+    const lng = floatToFixedPoint(newValue.lng as unknown as number, 51);
     const timestamp = new Date(newValue.date).getTime();
     const transaction = contract.methods
-      .set(lat, lng, newValue.name, timestamp)
+      .set(
+        lat,
+        lng,
+        newValue.name,
+        timestamp,
+        newValue.status,
+        newValue.details
+      )
       .encodeABI();
 
     const gasPrice = await web3.eth.getGasPrice();
     setSteps((prevSteps) => ({ ...prevSteps, gasPrice: true }));
-    const gasPriceNumeric = Math.floor(Number(gasPrice) * 1.2);
+    const gasPriceNumeric = Math.floor(Number(gasPrice) * 1.5);
     const increasedGasPrice = BigInt(gasPriceNumeric);
 
     const gasEstimate = await web3.eth.estimateGas({
@@ -146,26 +175,59 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
     setFormData((prevData: any) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  async function handleSubmit() {
     setSteps(initialState);
     const signedTransaction = await prepareTransaction(formData);
     await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
     setSteps((prevSteps) => ({ ...prevSteps, send: true }));
     fetchData();
-  };
+  }
 
   useEffect(() => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      lat: eventLocations[0],
-      lng: eventLocations[1],
-    }));
-  }, [eventLocations]);
+    if (dataPin)
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        lat: dataPin.points[0],
+        lng: dataPin.points[1],
+      }));
+  }, [dataPin]);
 
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      name: adminData?.nume,
+    }));
+    setFormData((prevData) => ({
+      ...prevData,
+      status: selectedOption,
+    }));
+  }, [adminData, selectedOption]);
+
+  // useEffect(()=>{
+  //   console.log(secondButton)
+  // },[secondButton])
   return (
-    <div className="mt-7">
-      <div className=" flex justify-center gap-6">
+    <>
+      {secondButton === "admin" ? (
+        <>
+          <textarea
+            className=" bg-black text-white my-2 border-white border rounded-md h-[230px] w-full p-2 "
+            placeholder="Descriere"
+            value={formData.details}
+            onChange={(e) => {
+              console.log(formData);
+              setFormData((prevData) => ({
+                ...prevData,
+                details: e.target.value,
+              }));
+            }}
+          />
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+          >
+            Save
+            {/* <div className=" flex justify-center gap-6">
         <div>
           <div className=" bg-red-500 flex justify-center"> Process</div>
           {Object.entries(steps).map(([step, value]) => (
@@ -205,7 +267,7 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
                 type="number"
                 id="lat"
                 name="lat"
-                value={eventLocations[0]}
+                value={dataPin?.points[0]}
                 readOnly
                 className="w-full border rounded-md py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               />
@@ -221,7 +283,7 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
                 type="number"
                 id="lng"
                 name="lng"
-                value={eventLocations[1]}
+                value={dataPin?.points[1]}
                 readOnly
                 className="w-full border rounded-md py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               />
@@ -238,6 +300,26 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
                 id="name"
                 name="name"
                 value={formData.name}
+                onChange={handleChange}
+                className="w-full border rounded-md py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full border rounded-md py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                id="details"
+                name="details"
+                value={formData.details}
                 onChange={handleChange}
                 className="w-full border rounded-md py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               />
@@ -282,7 +364,12 @@ export default function Blockchain({ eventLocations, setEventuri }: Props) {
               </div>
             </div>
           ))}
-      </div>
-    </div>
+      </div> */}
+          </button>
+        </>
+      ) : (
+        <></>
+      )}
+    </>
   );
 }

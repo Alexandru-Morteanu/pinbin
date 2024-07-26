@@ -11,7 +11,7 @@ export type Data = {
   y: number;
   imgName: string;
 };
-export const CONTRACT_ADRESS = "0x688013e1009708d8Fa78EE2F1f3D59532Ce01477";
+export const CONTRACT_ADRESS = "0x00f93e6d8DA59910269A24Db6F74Aa82caF3eB18";
 //0x06F01f3DF1902758a744050B0d9968f50dea86Ad
 export const PRIVATE_KEY =
   "0x17386e1eed13c6c5a9fb8c81003ea9562fc98cf9268edadfdcd8def5ae66caa3";
@@ -27,22 +27,12 @@ export const CONTRACT_ABI: any = [
   {
     constant: false,
     inputs: [
-      {
-        name: "x",
-        type: "uint256",
-      },
-      {
-        name: "y",
-        type: "uint256",
-      },
-      {
-        name: "name",
-        type: "string",
-      },
-      {
-        name: "date",
-        type: "uint256",
-      },
+      { name: "x", type: "uint256" },
+      { name: "y", type: "uint256" },
+      { name: "name", type: "string" },
+      { name: "date", type: "uint256" },
+      { name: "status", type: "string" }, // New parameter
+      { name: "details", type: "string" }, // New parameter
     ],
     name: "set",
     outputs: [],
@@ -53,35 +43,33 @@ export const CONTRACT_ABI: any = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "x",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "y",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
+      { indexed: false, internalType: "uint256", name: "x", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "y", type: "uint256" },
+      { indexed: false, internalType: "string", name: "name", type: "string" },
       {
         indexed: false,
         internalType: "uint256",
         name: "timestamp",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "status",
+        type: "string",
+      }, // New parameter
+      {
+        indexed: false,
+        internalType: "string",
+        name: "details",
+        type: "string",
+      }, // New parameter
     ],
     name: "DataUpdated",
     type: "event",
   },
 ];
+
 export function getStateColor(state: string): string {
   console.log(state);
   switch (state) {

@@ -24,6 +24,9 @@ export default function encrypt(body: any, resolve: any, reject: any) {
         y: encryptedY,
         imgName: JSON.parse(body).imgName,
         status: "Problem",
+        name: JSON.parse(body).pointDetails.name,
+        label: JSON.parse(body).pointDetails.label,
+        detalii_cet: JSON.parse(body).pointDetails.detalii_cet,
       };
       await supabase.from("PointsTrash").insert([data]);
     };

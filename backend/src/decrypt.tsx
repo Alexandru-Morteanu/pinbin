@@ -19,6 +19,11 @@ export default function decrypt(body: any, resolve: any, reject: any) {
           id: row.id,
           status: row.status,
           descriere: row.descriere,
+          label: row.label,
+          name: row.name,
+          detalii_cet: row.detalii_cet,
+          created_at: row.created_at,
+          verified: row.verified,
         };
       });
       resolve(decryptedData);

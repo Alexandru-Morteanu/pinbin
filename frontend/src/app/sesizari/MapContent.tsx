@@ -30,18 +30,26 @@ export type DataItem = {
   imgName: string;
   status: string;
   descriere: string;
+  name: string;
+  label: string;
+  detalii_cet: string;
+  created_at: string;
+  verified: boolean;
 };
 
 type Props = {
   admin?: boolean;
   handleDelete?: (id: number) => void;
-  setEventLocations: Function;
+  setEventLocations?: Function;
   events: Form[];
   setCurrentPin?: Function;
+  dataAboutPin?: any;
+  searchTerm?: string;
+  search?: boolean;
+  refresh?: boolean;
 };
 
 export function getState(state: string): string {
-  console.log(state);
   switch (state) {
     case "Problem":
       return "text-orange-400";
@@ -60,6 +68,10 @@ export default function MapContent({
   setCurrentPin,
   setEventLocations,
   events,
+  dataAboutPin,
+  searchTerm,
+  search,
+  refresh,
 }: Props) {
   const map = useMap();
   const [polygons, setPolygons] = useState<number[][][]>([]);
@@ -67,6 +79,7 @@ export default function MapContent({
   const [zoom, setZoom] = useState<any>(map.getZoom());
   const [data, setData] = useState<DataItem[]>([]);
   const [imageUrl, setImageUrl] = useState<string[] | null>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>();
   const [clickedLocation, setClickedLocation] = useState<LatLngTuple | null>(
     null
   );
@@ -83,10 +96,6 @@ export default function MapContent({
   }, []);
 
   useEffect(() => {
-    console.log(events);
-  }, [events]);
-
-  useEffect(() => {
     if (data.length > 0) {
       const parsedPoints: Point[] = data.map((item) => ({
         x: parseFloat(item.points[0]),
@@ -94,41 +103,7 @@ export default function MapContent({
       }));
 
       const clusters = runKMeans(4, parsedPoints);
-      console.log(parsedPoints);
-      // const clusteredPolygons = clusters.map((cluster: any) => {
-      //   const clusterPoints = cluster.points.map((point: any) => ({
-      //     x: point.x,
-      //     y: point.y,
-      //   }));
-
-      //   const hullPoints: number[][] = bigAreaPoints(
-      //     clusterPoints,
-      //     cluster.centroid
-      //   );
-      //   return hullPoints;
-      // });
-      // setPolygons(clusteredPolygons);
-
-      // const clusteredCentroids: any = clusters.map((point, index) => {
-      //   const lat = point.centroid.x;
-      //   const lng = point.centroid.y;
-      //   return [lat, lng];
-      // });
-
-      // const circleMarkers = clusters.map((cluster: any, index: number) => {
-      //   const maxRadiusInDegrees = Math.max(
-      //     ...cluster.points.map((point: any) =>
-      //       Math.sqrt(
-      //         Math.pow(cluster.centroid.x - point.x, 2) +
-      //           Math.pow(cluster.centroid.y - point.y, 2)
-      //       )
-      //     )
-      //   );
-      //   const maxRadius = (maxRadiusInDegrees / 360) * 40075016.686;
-      //   const center = clusteredCentroids[index];
-      //   return { center, radius: maxRadius };
-      // });
-      // setCircles(circleMarkers);
+      // console.log(parsedPoints);
     }
   }, [data]);
 
@@ -142,6 +117,7 @@ export default function MapContent({
   };
 
   async function handleReqImage(index: number) {
+    setCurrentIndex(index);
     const { imgName } = data[index];
     const { data: imageData, error } = await supabase.storage
       .from("Imagini")
@@ -163,16 +139,59 @@ export default function MapContent({
     }
   }
 
+  function isDangerousPoint(point: LatLngTuple): boolean {
+    // console.log(point);
+    return dataAboutPin.some(
+      (dangerousPoint: any) =>
+        //@ts-ignore
+        parseFloat(dangerousPoint.lat) === parseFloat(point[0]) &&
+        //@ts-ignore
+        parseFloat(dangerousPoint.lng) === parseFloat(point[1])
+    );
+  }
+
+  useEffect(() => {
+    if (searchTerm !== "") {
+      handleSearch();
+    }
+  }, [search]);
+
+  // useEffect(() => {
+  //   handleRefresh();
+  // }, [refresh]);
+
   useMapEvent("click", (event) => {
     const { lat, lng } = event.latlng;
     setClickedLocation([lat, lng]);
-    setEventLocations([lat, lng]);
-    console.log(`Clicked on point: ${lat}, ${lng}`);
+    if (setEventLocations) setEventLocations([lat, lng]);
   });
 
   useMapEvent("zoomend", () => {
     setZoom(map.getZoom());
   });
+
+  // const handleRefresh = async () => {
+  //   await fetchPoints();
+  //   if (setCurrentPin && currentIndex) await setCurrentPin(data[currentIndex]);
+  // };
+
+  const handleSearch = async () => {
+    if (!searchTerm) return;
+    try {
+      const response = await axiosInstance.get(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${searchTerm}`
+      );
+      if (response.data && response.data.length > 0) {
+        const { lat, lon } = response.data[0];
+        map.setView([lat, lon], 13); // Adjust zoom level as needed
+      } else {
+        console.error("City not found");
+      }
+    } catch (error) {
+      console.error("Error fetching city location:");
+    }
+  };
+
   return (
     <>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -183,49 +202,53 @@ export default function MapContent({
           positions={polygon as LatLngExpression[]}
         />
       ))}
-      {data?.map((point: any, index) =>
-        !point.points.some((value: number) => isNaN(value)) ? (
-          <Marker
-            key={`circle-${index}`}
-            position={point.points}
-            eventHandlers={{
-              click: () => {
-                handleReqImage(index);
-              },
-            }}
-          >
-            <Popup>
-              <div>{point.points[0] + " <-> " + point.points[1]}</div>
-              <div className={` flex ${getState(point.status)}`}>
-                {" "}
-                {point.status}
-              </div>
-              <button className="w-[100%] h-[100px] my-5 justify-center items-center flex p-0 bg-slate-300">
-                <div>
-                  {imageUrl && imageUrl[index] && (
-                    <img
-                      src={imageUrl[index]}
-                      alt="Downloaded Image"
-                      style={{ maxWidth: "100%" }}
-                    />
-                  )}
+      {dataAboutPin &&
+        data?.map((point: any, index) =>
+          !point.points.some((value: number) => isNaN(value)) ? (
+            <Marker
+              key={`circle-${index}`}
+              position={point.points}
+              eventHandlers={{
+                click: () => {
+                  handleReqImage(index);
+                },
+              }}
+            >
+              <Popup>
+                <div>{point.points[0] + " <-> " + point.points[1]}</div>
+                <div className={` flex ${getState(point.status)}`}>
+                  {" "}
+                  {point.status}
                 </div>
-                {admin && (
-                  <div
-                    onClick={async () => {
-                      handleDelete?.(data[index].id);
-                      await fetchPoints();
-                    }}
-                    className="absolute  right-0 top-7 bg-red-600 rounded-md p-1 h-5 font-bold w-5 m-2 flex justify-center items-center"
-                  >
-                    -
-                  </div>
+                {isDangerousPoint(point.points) && (
+                  <div className="text-red-600 font-bold">Finished</div>
                 )}
-              </button>
-            </Popup>
-          </Marker>
-        ) : null
-      )}
+                <button className="w-[100%] h-[100px] my-5 justify-center items-center flex p-0 bg-slate-300">
+                  <div>
+                    {imageUrl && imageUrl[index] && (
+                      <img
+                        src={imageUrl[index]}
+                        alt="Downloaded Image"
+                        style={{ maxWidth: "100%" }}
+                      />
+                    )}
+                  </div>
+                  {admin && (
+                    <div
+                      onClick={async () => {
+                        handleDelete?.(data[index].id);
+                        await fetchPoints();
+                      }}
+                      className="absolute  right-0 top-7 bg-red-600 rounded-md p-1 h-5 font-bold w-5 m-2 flex justify-center items-center"
+                    >
+                      -
+                    </div>
+                  )}
+                </button>
+              </Popup>
+            </Marker>
+          ) : null
+        )}
       {circles.map((circle: any, index: any) =>
         !circle.center.some((value: number) => isNaN(value)) ? (
           <CircleMarker

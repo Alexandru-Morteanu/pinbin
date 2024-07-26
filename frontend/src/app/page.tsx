@@ -45,9 +45,9 @@ const Home: React.FC = () => {
           <span className="text-white-300">PinBin</span>
         </h2>
         <p className="text-xl font-bold text-gray-200 mt-4">
-          Bring together people from all walks of life
+          Contribuim împreuna la
           <br />
-          to contribute towards a cleaner and healthier planet.
+          un oras mai bun.
         </p>
         <button
           onClick={() => handleScrollToNextSection("section1")}
