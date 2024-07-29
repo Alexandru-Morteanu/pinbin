@@ -46,7 +46,7 @@ const server = https.createServer(
 );
 
 // Start the server
-const PORT = parseInt(process.env.PORT as string, 10) || 8080;
+const PORT = parseInt(process.env.PORT, 10) || 8080;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
