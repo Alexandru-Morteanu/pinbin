@@ -7,7 +7,7 @@ import retriveRouter from "./routes/retrive.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-import https from "https";
+import http from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
 
@@ -34,24 +34,10 @@ app.use("/api", validateRouter);
 app.use("/api", retriveRouter);
 app.use("/api", verifyToken);
 
-// Load SSL certificate and key
-const privateKey = Buffer.from(process.env.SSL_KEY_BASE64, "base64").toString(
-  "utf8"
-);
-const certificate = Buffer.from(process.env.SSL_CERT_BASE64, "base64").toString(
-  "utf8"
-);
+// Create HTTP server
+const server = http.createServer(app);
 
-// Create HTTPS server
-const server = https.createServer(
-  {
-    key: privateKey,
-    cert: certificate,
-  },
-  app
-);
-
-// // Start the server
+// Start the server
 const PORT = parseInt(process.env.PORT, 10) || 8080;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);

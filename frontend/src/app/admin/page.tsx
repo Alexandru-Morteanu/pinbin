@@ -6,6 +6,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { Form } from "../components/Blockchain";
 import Admin from "./Admin";
+
 const Map = dynamic(() => import("../sesizari/Map"), { ssr: false });
 
 type Contract = {
