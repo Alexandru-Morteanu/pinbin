@@ -20,4 +20,4 @@ COPY certs /app/certs
 EXPOSE 8080
 
 # Command to run your application
-CMD ["node", "index.js"]
+CMD ["node", "index.tsx"]
