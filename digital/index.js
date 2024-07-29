@@ -4,7 +4,6 @@ import certificateRouter from "./routes/generate.js";
 import verifyToken from "./routes/verifyToken.js";
 import validateRouter from "./routes/validate.js";
 import retriveRouter from "./routes/retrive.js";
-
 import https from "https";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -33,9 +32,10 @@ app.use("/api", retriveRouter);
 app.use("/api", verifyToken);
 
 // Load SSL certificate and key
-const privateKey = fs.readFileSync("./certs/key.pem", "utf8");
-const certificate = fs.readFileSync("./certs/cert.pem", "utf8");
-
+const privateKey = fs.readFileSync("./app/certs/key.pem", "utf8");
+const certificate = fs.readFileSync("./app/certs/cert.pem", "utf8");
+console.log(privateKey);
+console.log(certificate);
 // Create HTTPS server
 const server = https.createServer(
   {
