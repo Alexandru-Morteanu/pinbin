@@ -4,6 +4,7 @@ import certificateRouter from "./routes/generate.js";
 import verifyToken from "./routes/verifyToken.js";
 import validateRouter from "./routes/validate.js";
 import retriveRouter from "./routes/retrive.js";
+
 import https from "https";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -34,8 +35,7 @@ app.use("/api", verifyToken);
 // Load SSL certificate and key
 const privateKey = fs.readFileSync("/app/certs/key.pem", "utf8");
 const certificate = fs.readFileSync("/app/certs/cert.pem", "utf8");
-console.log(privateKey);
-console.log(certificate);
+
 // Create HTTPS server
 const server = https.createServer(
   {
@@ -47,6 +47,6 @@ const server = https.createServer(
 
 // Start the server
 const PORT = parseInt(process.env.PORT, 10) || 8080;
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on port ${PORT}`);
 });
