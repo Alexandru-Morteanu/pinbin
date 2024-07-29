@@ -33,8 +33,8 @@ app.use("/api", retriveRouter);
 app.use("/api", verifyToken);
 
 // Load SSL certificate and key
-const privateKey = fs.readFileSync("/app/certs/key.pem", "utf8");
-const certificate = fs.readFileSync("/app/certs/cert.pem", "utf8");
+const privateKey = fs.readFileSync("./certs/key.pem", "utf8");
+const certificate = fs.readFileSync("./certs/cert.pem", "utf8");
 
 // Create HTTPS server
 const server = https.createServer(
