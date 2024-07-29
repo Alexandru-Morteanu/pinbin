@@ -1,7 +1,6 @@
 import { Elysia, t } from "elysia";
 import { logger } from "@bogeychan/elysia-logger";
 import { cors } from "@elysiajs/cors";
-import { spawn } from "child_process";
 import python from "./python";
 import encrypt from "./encrypt";
 import decrypt from "./decrypt";
@@ -9,6 +8,7 @@ import decrypt from "./decrypt";
 const app = new Elysia();
 app.use(cors());
 app.use(logger({ level: "error" }));
+
 // tensorflow
 app.post("/", ({ body }: any) => {
   return new Promise((resolve, reject) => {
@@ -19,6 +19,7 @@ app.post("/", ({ body }: any) => {
 app.onParse(({ request }, contentType) => {
   if (contentType === "application/json") return request.text();
 });
+
 // encryption
 app.post("/encrypt", ({ body }: any) => {
   return new Promise((resolve, reject) => {
@@ -33,7 +34,8 @@ app.post("/decrypt", ({ body }: any) => {
   });
 });
 
-app.listen(8000);
+const port: number = parseInt(process.env.PORT as string, 10) || 8000;
+app.listen(port);
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
 );

@@ -1,39 +1,23 @@
-# Build stage
-FROM oven/bun:1 as base
-WORKDIR /usr/src/app
+# Use an official Node.js runtime as a parent image
+FROM node:20-bullseye
 
-# Install dependencies for development
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+# Set the working directory in the container
+WORKDIR /app
 
-# Install dependencies for production
-RUN mkdir -p /temp/prod
-COPY package.json bun.lock /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+# Copy package.json and bun.lockb files to the working directory
+COPY package.json bun.lockb ./
 
-# Prerelease stage
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
+# Install Bun
+RUN npm install -g bun
+
+# Copy the rest of your application code to the working directory
 COPY . .
 
-# [Optional] Tests & Build
-ENV NODE_ENV=production
-RUN bun test
-RUN bun run build
+# Install Bun dependencies
+RUN bun install
 
-# Install TensorFlow Python
-USER root
-RUN apt-get update && apt-get install -y python3 python3-pip
-RUN pip3 install tensorflow
+# Expose the port your app will run on
+EXPOSE 8000
 
-# Release stage
-FROM base AS release
-COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/index.ts .
-COPY --from=prerelease /usr/src/app/package.json .
-
-USER bun
-EXPOSE 3000/tcp
-ENTRYPOINT ["bun", "run", "dev"]
+# Command to run your application
+CMD ["bun", "src/index.ts"]
