@@ -17,7 +17,7 @@ COPY . .
 COPY certs /app/certs
 
 # Expose the port
-EXPOSE 8080
+EXPOSE 10000
 
 # Command to run your application
 CMD ["node", "index.js"]
