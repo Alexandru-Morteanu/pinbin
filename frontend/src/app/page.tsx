@@ -1,8 +1,14 @@
 "use client";
 import React, { useRef } from "react";
 import Link from "next/link";
+import homepage from "../../public/homepage.png";
+import logo from "../../public/Logo.png";
+import { useRouter } from "next/navigation";
+
+import Image from "next/image";
 
 const Home: React.FC = () => {
+  const router = useRouter();
   const sectionRefs = {
     section1: useRef<HTMLDivElement>(null),
     section2: useRef<HTMLDivElement>(null),
@@ -29,51 +35,19 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-white space-y-16">
+    <div className="min-h-screen flex flex-col items-center justify-center space-y-16">
       <section
-        className="text-center h-screen"
+        className="text-center h-screen mt-10 cursor-pointer"
         ref={sectionRefs.section1}
-        onClick={() => handleScrollToNextSection("section1")}
+        onClick={() => {
+          router.push("/sesizari");
+        }}
       >
-        <h1
-          className="text-8xl font-bold transition-opacity opacity-0 animate-fadeIn"
-          id="content"
-        >
-          Go <span className="text-green-500">Green</span> with
-        </h1>
-        <h2 className="text-8xl font-bold">
-          <span className="text-white-300">PinBin</span>
-        </h2>
-        <p className="text-xl font-bold text-gray-200 mt-4">
-          Contribuim împreuna la
-          <br />
-          un oras mai bun.
-        </p>
-        <button
-          onClick={() => handleScrollToNextSection("section1")}
-          className="px-6 py-3 text-lg font-bold mt-4  text-green-600"
-        >
-          Learn More
-        </button>
-        <div id="nec" className="w-full flex justify-center">
-          <div
-            onClick={() => handleScrollToNextSection("section1")}
-            className="cursor-pointer animate-bounce mt-8 p-2 self-center rounded-full bg-[#27272A] border border-gray-500"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              className="h-6 w-6 text-white"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
+        <div className="flex items-center flex-col">
+          <Image src={homepage} alt="homepage" height={700} />
+          <Image src={logo} alt="logo1" height={40} />
+          <div className="text-gray-500">
+            Apăsați aici pentru a începe să raportați o problemă din societate
           </div>
         </div>
       </section>

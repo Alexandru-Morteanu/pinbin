@@ -23,7 +23,7 @@ export type PointDetails = {
 export default function IphoneCamera({ webcamRef, capture, image }: any) {
   const [recording, setRecording] = useState<Boolean>(false);
   const [pointDetails, setPointDetails] = useState<PointDetails>({
-    label: "nedeterminat",
+    label: "Fara eticheta",
     name: "",
     detalii_cet: "",
   });
@@ -33,7 +33,7 @@ export default function IphoneCamera({ webcamRef, capture, image }: any) {
   };
   return (
     <div
-      className="w-[300px] h-[600px] bg-blue-900 mt-6 flex flex-col justify-between"
+      className="text-white w-[300px] h-[600px] bg-blue-900 mt-6 flex flex-col justify-between"
       style={{
         borderRadius: 50,
         boxShadow: "0px 0px 0px 10px rgba(0, 0, 0, 1)",
@@ -122,7 +122,7 @@ export default function IphoneCamera({ webcamRef, capture, image }: any) {
                   borderRadius: "50%",
                   zIndex: "100",
                 }}
-                disabled={!location}
+                disabled={!window.location}
               ></button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] dark text-white">

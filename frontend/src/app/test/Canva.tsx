@@ -3,7 +3,7 @@ import Webcam from "react-webcam";
 import io from "socket.io-client";
 import { PointDetails } from "../components/IphoneCamera";
 
-const socket = io("http://localhost:8088");
+const socket = io("https://python-1gk9.onrender.com");
 
 interface CanvaProps {
   webcamRef: any;
@@ -62,16 +62,7 @@ const Canva: React.FC<CanvaProps> = ({ webcamRef, setLabel }) => {
         const scaleY = canvas.height / 320;
 
         // Draw detections
-        [
-          {
-            object_name: "telecom_alb",
-            confidence: 0.51171875,
-            xmin: 58,
-            ymin: 126,
-            xmax: 231,
-            ymax: 256,
-          },
-        ].forEach((detection) => {
+        detections.forEach((detection) => {
           setLabel((prevDetails: PointDetails) => ({
             ...prevDetails,
             label: detection.object_name,
@@ -104,17 +95,17 @@ const Canva: React.FC<CanvaProps> = ({ webcamRef, setLabel }) => {
         });
       }
     }
-  }, []);
+  }, [detections]);
 
   const startSendingFrames = () => {
     const interval = setInterval(() => {
-      // if (webcamRef.current) {
-      //   const frameData = getFrameDataFromWebcam(webcamRef.current);
-      //   if (frameData) {
-      //     socket.emit("frame", frameData);
-      //   }
-      // }
-    }, 300);
+      if (webcamRef.current) {
+        const frameData = getFrameDataFromWebcam(webcamRef.current);
+        if (frameData) {
+          socket.emit("frame", frameData);
+        }
+      }
+    }, 2000);
 
     return interval; // Return the interval ID for cleanup
   };

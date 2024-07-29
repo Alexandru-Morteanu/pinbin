@@ -41,7 +41,6 @@ type Props = {
   admin?: boolean;
   handleDelete?: (id: number) => void;
   setEventLocations?: Function;
-  events: Form[];
   setCurrentPin?: Function;
   dataAboutPin?: any;
   searchTerm?: string;
@@ -67,7 +66,6 @@ export default function MapContent({
   handleDelete,
   setCurrentPin,
   setEventLocations,
-  events,
   dataAboutPin,
   searchTerm,
   search,
@@ -93,7 +91,7 @@ export default function MapContent({
 
   useEffect(() => {
     fetchPoints();
-  }, []);
+  }, [admin]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -109,8 +107,17 @@ export default function MapContent({
 
   const fetchPoints = async () => {
     try {
-      const { data } = await axiosInstance.post("/decrypt");
-      setData(data);
+      if (admin) {
+        const { data } = await axiosInstance.post("/decrypt", {
+          admin: admin,
+        });
+        setData(data);
+      } else {
+        const { data } = await axiosInstance.post("/decrypt", {
+          admin: false,
+        });
+        setData(data);
+      }
     } catch (error: any) {
       console.error("Error fetching points from Supabase:", error.message);
     }
@@ -194,7 +201,7 @@ export default function MapContent({
 
   return (
     <>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <TileLayer url="https://tile.jawg.io/jawg-lagoon/{z}/{x}/{y}{r}.png?access-token=xwNo3HjNfRdUkgLTeq75eeG3KzbRFGoU5m3Vc6D6tD1WFOScLld91Sxy89hsp2R0" />
       {polygons.map((polygon, index) => (
         <Polygon
           key={index}
@@ -215,8 +222,7 @@ export default function MapContent({
               }}
             >
               <Popup>
-                <div>{point.points[0] + " <-> " + point.points[1]}</div>
-                <div className={` flex ${getState(point.status)}`}>
+                <div className={` flex ${getState(point.status)} w-[150px]`}>
                   {" "}
                   {point.status}
                 </div>
@@ -233,17 +239,6 @@ export default function MapContent({
                       />
                     )}
                   </div>
-                  {admin && (
-                    <div
-                      onClick={async () => {
-                        handleDelete?.(data[index].id);
-                        await fetchPoints();
-                      }}
-                      className="absolute  right-0 top-7 bg-red-600 rounded-md p-1 h-5 font-bold w-5 m-2 flex justify-center items-center"
-                    >
-                      -
-                    </div>
-                  )}
                 </button>
               </Popup>
             </Marker>
@@ -264,20 +259,6 @@ export default function MapContent({
           <Popup>Clicked Point</Popup>
         </Marker>
       )}
-      {events.map((event: any, index) => (
-        <Marker
-          key={index}
-          position={[event.lat, event.lng]}
-          icon={customIcon(yellowIcon)}
-        >
-          <Popup>
-            <div>
-              <p>Name: {event.name}</p>
-              <p>Date: {event.timestamp}</p>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
     </>
   );
 }

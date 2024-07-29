@@ -5,8 +5,16 @@ export default function decrypt(body: any, resolve: any, reject: any) {
     const key = Buffer.from(process.env.CRYPTO_KEY || "", "utf-8");
     const iv = Buffer.from(process.env.CRYPTO_IV || "", "utf-8");
     const fetchData = async () => {
-      const res = await supabase.from("PointsTrash").select("*");
-      const decryptedData = res.data?.map((row: any) => {
+      let res;
+      if (!JSON.parse(body).admin) {
+        res = await supabase.from("PointsTrash").select("*");
+      } else {
+        res = await supabase
+          .from("PointsTrash")
+          .select("*")
+          .eq("verified", true);
+      }
+      const decryptedData = res?.data?.map((row: any) => {
         const decipherX = crypto.createDecipheriv("aes-256-cbc", key, iv);
         const decipherY = crypto.createDecipheriv("aes-256-cbc", key, iv);
         let decryptedX = decipherX.update(row.x, "hex", "utf8");

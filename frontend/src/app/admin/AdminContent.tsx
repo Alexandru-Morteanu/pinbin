@@ -8,7 +8,7 @@ type Props = {
 export default function AdminContent({ selectedOption, handleChange }: Props) {
   return (
     <select
-      className=" bg-black rounded-lg"
+      className="rounded-lg"
       value={selectedOption}
       onChange={handleChange}
     >

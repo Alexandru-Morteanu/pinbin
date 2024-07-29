@@ -6,6 +6,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { Form } from "../components/Blockchain";
 import Admin from "./Admin";
+const Map = dynamic(() => import("../sesizari/Map"), { ssr: false });
+
 type Contract = {
   commonName: string;
   organization: string;
@@ -97,9 +99,9 @@ export default function Page() {
     }
   };
   return (
-    <div className=" w-full">
+    <div className="w-full">
       {!hasToken ? (
-        <div className="container mx-auto">
+        <div className="container mx-auto mt-24">
           <h1 className="text-3xl font-bold my-8">
             Certificate Administratori
           </h1>
@@ -157,15 +159,15 @@ export default function Page() {
           )}
         </div>
       ) : (
-        <div>
-          <div>{adminData?.nume}</div>
-          <div>{adminData?.organizatie}</div>
+        <>
+          {/* <div>{adminData?.nume}</div>
+          <div>{adminData?.organizatie}</div> */}
           {adminData && adminData.organizatie === "ISJ Vaslui" ? (
-            <Admin admin={true} adminData={adminData} />
+            <Admin admin={true} ong={false} adminData={adminData} />
           ) : (
             adminData &&
             adminData.nume !== "ISJ Vaslui" && (
-              <Admin ong={true} adminData={adminData} />
+              <Admin ong={true} admin={false} adminData={adminData} />
             )
           )}
 
@@ -178,7 +180,7 @@ export default function Page() {
           >
             Log out
           </div>
-        </div>
+        </>
       )}
     </div>
   );

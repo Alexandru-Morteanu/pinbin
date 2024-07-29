@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 import Blockchain, { Form } from "../components/Blockchain";
 import { DataItem } from "../sesizari/MapContent";
 import { supabase } from "../components/supabase";
-import { getStateColor } from "../../../constants";
 import AdminContent from "./AdminContent";
 import axiosInstance from "../components/axios";
 import Search from "../components/Search";
 import { Checkbox } from "@/components/ui/checkbox";
 import Main from "../components/Main";
 import Ong from "../components/Ong";
+import Sidebar from "../components/Sidebar";
 
 const Map = dynamic(() => import("../sesizari/Map"), { ssr: false });
 
@@ -22,7 +22,6 @@ type Props = {
 
 export default function Admin({ admin, adminData, ong }: Props) {
   const [dataAboutPins, setDataAboutPins] = useState();
-  const [events, setEvents] = useState<Array<Form>>([]);
   const [description, setDescription] = useState("");
   const [dataPin, setDataPin] = useState<DataItem>();
   const [currentUser, setCurrentUser] = useState<number>(1);
@@ -99,7 +98,7 @@ export default function Admin({ admin, adminData, ong }: Props) {
   }, [searchTerm]);
 
   return (
-    <div className="">
+    <>
       <Search
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -107,81 +106,27 @@ export default function Admin({ admin, adminData, ong }: Props) {
         handleSearch={handleSearch}
         suggestions={suggestions}
       />
-      <div className="flex mt-36">
-        <Map
-          handleSearch={handleSearch}
-          searchTerm={searchTerm}
-          dataAboutPin={dataAboutPins}
-          events={events}
-          setCurrentPin={setDataPin}
-          refresh={refresh}
-        />
-        <div className="bg-black w-[400px] h-[400px] ml-7 color-white">
-          <div className="p-5 opacity-80">
-            {dataPin?.points && (
-              <>
-                <div className="flex">
-                  <p>
-                    {dataPin?.points[0]}
-                    {`<->`}
-                  </p>
-                  <p> {dataPin?.points[1]}</p>
-                </div>{" "}
-                <div className="flex">
-                  <div
-                    className={
-                      secondButton === ""
-                        ? `border border-slate-300 rounded px-2 text-slate-300 cursor-pointer`
-                        : "cursor-pointer px-2"
-                    }
-                    onClick={() => setSecondButton("")}
-                  >
-                    MAIN
-                  </div>
-                  {currentUser === 2 ? (
-                    <div
-                      className={
-                        secondButton === "ong"
-                          ? `border border-slate-300 rounded px-2 text-slate-300 cursor-pointer`
-                          : "cursor-pointer px-2"
-                      }
-                      onClick={() => setSecondButton("ong")}
-                    >
-                      ONG
-                    </div>
-                  ) : (
-                    currentUser === 3 && (
-                      <div
-                        className={
-                          secondButton === "admin"
-                            ? `border border-slate-300 rounded px-2 text-slate-300 cursor-pointer`
-                            : "cursor-pointer px-2"
-                        }
-                        onClick={() => setSecondButton("admin")}
-                      >
-                        ADMIN
-                      </div>
-                    )
-                  )}
-                </div>
-                <div>
-                  {secondButton === "admin" ? (
-                    <AdminContent
-                      selectedOption={selectedOption}
-                      handleChange={handleChange}
-                    ></AdminContent>
-                  ) : secondButton === "ong" ? (
-                    <Ong
-                      dataPin={dataPin}
-                      setRefresh={setRefresh}
-                      refresh={refresh}
-                      setDataPin={setDataPin}
-                    />
-                  ) : (
-                    <Main dataPin={dataPin} />
-                  )}
-                </div>
-              </>
+      <div className="relative w-full h-full pt-[68px] flex">
+        <aside
+          className={`flex flex-col ${
+            dataPin && "w-[500px]"
+          } h-screen py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700`}
+        >
+          <div className="flex flex-col flex-grow">
+            {dataPin && (
+              <Sidebar
+                dataPin={dataPin}
+                currentUser={currentUser}
+                secondButton={secondButton}
+                setSecondButton={setSecondButton}
+                selectedOption={selectedOption}
+                handleChange={handleChange}
+                setRefresh={setRefresh}
+                refresh={refresh}
+                setDataPin={setDataPin}
+                adminData={adminData}
+                dataAboutPins={dataAboutPins}
+              />
             )}
             <Blockchain
               secondButton={secondButton}
@@ -189,26 +134,18 @@ export default function Admin({ admin, adminData, ong }: Props) {
               selectedOption={selectedOption}
               dataPin={dataPin}
               setEventuri={setDataAboutPins}
-            />
+            />{" "}
           </div>
-        </div>
+        </aside>
+        <Map
+          admin={admin}
+          handleSearch={handleSearch}
+          searchTerm={searchTerm}
+          dataAboutPin={dataAboutPins}
+          setCurrentPin={setDataPin}
+          refresh={refresh}
+        />
       </div>
-      <div>Filtreaza etichetele:</div>
-      <div className="py-3">
-        {[
-          "Carosabil stricat",
-          "Pereti vandalizati",
-          "Deseuri",
-          "Oameni ai strazii",
-          "Inundatii",
-          "Cladiri distruse",
-          "Fara eticheta",
-        ].map((label) => (
-          <div key={label}>
-            <Checkbox /> {label}
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 }

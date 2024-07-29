@@ -7,6 +7,7 @@ import { supabase } from "./supabase";
 import IphoneCamera, { PointDetails } from "./IphoneCamera";
 import locationWhite from "../images/locwhite.png";
 import Image from "next/image";
+import logo from "../../../public/Logo.png";
 
 interface CameraProps {
   switchState: (state: string) => void;
@@ -89,14 +90,22 @@ export default function Camera({
   }
 
   return (
-    <div className="flex flex-wrap w-full justify-center">
+    <div className="flex flex-wrap w-full items-center flex-col mt-32">
+      <p className="text-gray-500">
+        Pentru a raporta o problemă a comunității, începeți prin a permite
+        camera și faceți o fotografie
+      </p>
       <IphoneCamera webcamRef={webcamRef} image={image} capture={capture} />
-      <Image
+      <div className="flex m-10 items-center">
+        <p className="text-gray-500"> powered by project | </p>
+        <Image src={logo} alt="logo" height={40} />
+      </div>
+      {/* <Image
         alt="locationWhite"
         src={locationWhite}
         className={`${location ? "opacity-100" : "opacity-20"}`}
         style={{ objectFit: "contain" }}
-      />
+      /> */}
     </div>
   );
 }

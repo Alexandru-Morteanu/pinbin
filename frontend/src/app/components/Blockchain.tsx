@@ -9,6 +9,7 @@ import {
 } from "../../../constants";
 import { fixedPointToFloat, floatToFixedPoint } from "../components/floatnum";
 import { DataItem } from "../sesizari/MapContent";
+import { Textarea } from "@/components/ui/textarea";
 
 type Steps = {
   initiate: boolean;
@@ -203,15 +204,12 @@ export default function Blockchain({
     }));
   }, [adminData, selectedOption]);
 
-  // useEffect(()=>{
-  //   console.log(secondButton)
-  // },[secondButton])
   return (
     <>
       {secondButton === "admin" ? (
-        <>
-          <textarea
-            className=" bg-black text-white my-2 border-white border rounded-md h-[230px] w-full p-2 "
+        <div className="px-6">
+          <Textarea
+            className="my-2 border-white border rounded-md h-[230px] w-full p-2 "
             placeholder="Descriere"
             value={formData.details}
             onChange={(e) => {
@@ -366,7 +364,7 @@ export default function Blockchain({
           ))}
       </div> */}
           </button>
-        </>
+        </div>
       ) : (
         <></>
       )}
