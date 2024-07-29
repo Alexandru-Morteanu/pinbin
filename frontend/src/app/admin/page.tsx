@@ -43,18 +43,13 @@ export default function Page() {
       const token = cookies.jwtToken;
       if (token) {
         setHasToken(true);
-        const res = await axios.post(
-          "https://digital-qa6r.onrender.com/api/verifyToken",
-          {
-            token,
-          }
-        );
+        const res = await axios.post("https://localhost:8080/api/verifyToken", {
+          token,
+        });
         setAdminData(res.data);
       } else {
         setHasToken(false);
-        const res = await axios.get(
-          "https://digital-qa6r.onrender.com/api/retrive"
-        );
+        const res = await axios.get("https://localhost:8080/api/retrive");
         setContracts(res.data.contracts);
       }
     } catch (error) {
@@ -93,7 +88,7 @@ export default function Page() {
           },
         };
         const res = await axios.post(
-          "https://digital-qa6r.onrender.com/api/validate",
+          "https://localhost:8080/api/validate",
           data
         );
         const token = res.data.token;
