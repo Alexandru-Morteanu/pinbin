@@ -15,7 +15,7 @@ COPY . .
 
 # Copy SSL certificates
 # Assuming you have the certificates in the same directory as your Dockerfile
-COPY certs /app/certs
+COPY certs /app/cert
 
 # Expose the port
 EXPOSE 8080
