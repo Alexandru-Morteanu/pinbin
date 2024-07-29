@@ -33,8 +33,8 @@ app.use("/api", retriveRouter);
 app.use("/api", verifyToken);
 
 // Load SSL certificate and key
-const privateKey = fs.readFileSync("/cert/key.pem", "utf8");
-const certificate = fs.readFileSync("/cert/cert.pem", "utf8");
+const privateKey = fs.readFileSync("/app/certs/key.pem", "utf8");
+const certificate = fs.readFileSync("/app/certs/cert.pem", "utf8");
 
 // Create HTTPS server
 const server = https.createServer(
@@ -50,10 +50,3 @@ const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// key: fs.readFileSync(
-//     "/Users/morteanualexandru/Desktop/pinbin/digital/cert/key.pem"
-//   ),
-//   cert: fs.readFileSync(
-//     "/Users/morteanualexandru/Desktop/pinbin/digital/cert/cert.pem"
-//   ),

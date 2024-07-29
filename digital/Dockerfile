@@ -14,8 +14,7 @@ RUN npm install
 COPY . .
 
 # Copy SSL certificates
-# Assuming you have the certificates in the same directory as your Dockerfile
-COPY cert /app/cert
+COPY certs /app/certs
 
 # Expose the port
 EXPOSE 8080
