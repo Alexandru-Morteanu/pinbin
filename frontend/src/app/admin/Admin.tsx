@@ -7,7 +7,6 @@ import { supabase } from "../components/supabase";
 import AdminContent from "./AdminContent";
 import axiosInstance from "../components/axios";
 import Search from "../components/Search";
-import { Checkbox } from "@/components/ui/checkbox";
 import Main from "../components/Main";
 import Ong from "../components/Ong";
 import Sidebar from "../components/Sidebar";
