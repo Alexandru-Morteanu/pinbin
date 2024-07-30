@@ -1,0 +1,41 @@
+/* SponsorRow.css */
+.sponsor-row {
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 20px; /* Adjust spacing between rows */
+}
+
+.sponsor-row.left {
+  animation: moveLeft 3s linear infinite;
+}
+
+.sponsor-row.right {
+  animation: moveRight 3s linear infinite;
+}
+
+@keyframes moveLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes moveRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.carousel-item {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.carousel-item.active {
+  opacity: 1;
+}
