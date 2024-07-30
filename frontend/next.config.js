@@ -1,9 +1,12 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
   experimental: {
-    appDir: true,
+    esmExternals: "loose",
+    appDir: true, // Ensure this aligns with your usage
   },
+  // Add other configurations as needed
 };
 
 module.exports = nextConfig;

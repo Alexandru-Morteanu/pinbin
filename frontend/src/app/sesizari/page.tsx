@@ -3,7 +3,7 @@ import PageContent from "./PageContent";
 
 export default function PageMap() {
   return (
-    <RootLayout centerItems={false}>
+    <RootLayout>
       <PageContent />
     </RootLayout>
   );
