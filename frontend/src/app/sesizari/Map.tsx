@@ -29,6 +29,7 @@ export default function Map({
 
   return (
     <MapContainer
+      className="#map"
       center={position}
       zoom={6}
       style={{
