@@ -2,8 +2,8 @@
 
 - **Categorie**: Web
 - **Judetul**: Vaslui
-- **Surse**: [GitHub - Alexandru-Morteanu/pinbin](https://github.com/Alexandru-Morteanu/pinbin) ![30 clicks](https://community.infoeducatie.ro/images/emoji/twitter/link.png?v=12)
-- **Homepage**: [https://www.pinbin.site](https://www.pinbin.site) ![50 clicks](https://community.infoeducatie.ro/images/emoji/twitter/link.png?v=12)
+- **Surse**: [GitHub - Alexandru-Morteanu/pinbin](https://github.com/Alexandru-Morteanu/pinbin)
+- **Homepage**: https://www.pinbin.site
 
 ## Descriere
 
